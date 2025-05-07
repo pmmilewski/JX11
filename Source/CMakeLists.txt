@@ -14,5 +14,6 @@ target_sources(${PROJECT_NAME}
 		Voice.h
 		ProtectYourEars.h
 		NoiseGenerator.h
+		Oscillator.h
         )
 

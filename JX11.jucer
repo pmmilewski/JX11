@@ -8,6 +8,7 @@
               pluginDesc="JX11 Synth">
   <MAINGROUP id="ShHqbg" name="JX11">
     <GROUP id="{9F8A6C5F-D116-CC70-6DC1-B5B57CF1C517}" name="Source">
+      <FILE id="MlB8oD" name="Oscillator.h" compile="0" resource="0" file="Source/Oscillator.h"/>
       <FILE id="bQkLYs" name="NoiseGenerator.h" compile="0" resource="0"
             file="Source/NoiseGenerator.h"/>
       <FILE id="gVmOkX" name="Voice.h" compile="0" resource="0" file="Source/Voice.h"/>
