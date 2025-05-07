@@ -9,5 +9,10 @@ target_sources(${PROJECT_NAME}
         PluginEditor.cpp
         PluginProcessor.h
         PluginProcessor.cpp
+		Synth.h
+		Synth.cpp
+		Voice.h
+		ProtectYourEars.h
+		NoiseGenerator.h
         )
 

@@ -8,6 +8,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "ProtectYourEars.h"
 
 //==============================================================================
 JX11AudioProcessor::JX11AudioProcessor()
@@ -93,14 +94,18 @@ void JX11AudioProcessor::changeProgramName (int index, const juce::String& newNa
 //==============================================================================
 void JX11AudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    synth.allocateResources(sampleRate, samplesPerBlock);
+    reset();
 }
 
 void JX11AudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+    synth.deallocateResources();
+}
+
+void JX11AudioProcessor::reset()
+{
+    synth.reset();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -140,6 +145,10 @@ void JX11AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
         buffer.clear (i, 0, buffer.getNumSamples());
 
     splitBufferByEvents(buffer, midiMessages);
+
+#if JUCE_DEBUG
+    protectYourEars(buffer);
+#endif
 }
 
 //==============================================================================
@@ -202,13 +211,19 @@ void JX11AudioProcessor::splitBufferByEvents(juce::AudioBuffer<float>& buffer, j
 
 void JX11AudioProcessor::handleMIDI(uint8_t data0, uint8_t data1, uint8_t data2)
 {
-    char s[16];
-    snprintf(s, 16, "%02hhX %02hhX %02hhX", data0, data1, data2);
-    DBG(s);
+    synth.midiMessage(data0, data1, data2);
 }
 
 void JX11AudioProcessor::render(juce::AudioBuffer<float>& buffer, int sampleCount, int bufferOffset)
 {
+    float* outputBuffers[2] = { nullptr, nullptr };
+    outputBuffers[0] = buffer.getWritePointer(0) + bufferOffset;
+    if (getTotalNumOutputChannels() > 1)
+    {
+        outputBuffers[1] = buffer.getWritePointer(1) + bufferOffset;
+    }
+
+    synth.render(outputBuffers, sampleCount);
 }
 
 //==============================================================================
