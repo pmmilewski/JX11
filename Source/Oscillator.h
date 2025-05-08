@@ -7,23 +7,23 @@ class Oscillator
 {
 public:
     float amplitude;
-    float frequency;
-    float sampleRate;
-    float phaseOffset;
-    int sampleIndex;
+    float inc;
+    float phase;
 
     void reset()
     {
-        sampleIndex = 0;
+        phase = 1.5707963268f;
     }
 
     float nextSample()
     {
-        float output = amplitude * std::sin(
-            TWO_PI * sampleIndex * frequency / sampleRate + phaseOffset);
+        phase += inc;
+        if (phase >= 1.0f)
+        {
+            phase -= 1.0f;
+        }
 
-        sampleIndex += 1;
-        return output;
+        return  amplitude * std::sin(TWO_PI * phase);;
     }
 
 };

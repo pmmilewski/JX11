@@ -70,10 +70,10 @@ void Synth::noteOn(int note, int velocity)
 {
     voice.note = note;
 
+    float freq = 440.0f * std::exp2(static_cast<float>(note - 69) / 12.0f);
+
     voice.osc.amplitude = (velocity / 127.0f) * 0.5f;
-    voice.osc.frequency = 261.63f;
-    voice.osc.sampleRate = sampleRate;
-    voice.osc.phaseOffset = 0.0f;
+    voice.osc.inc = freq / sampleRate;
     voice.osc.reset();
 }
 
