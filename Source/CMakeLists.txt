@@ -15,5 +15,7 @@ target_sources(${PROJECT_NAME}
 		ProtectYourEars.h
 		NoiseGenerator.h
 		Oscillator.h
+		Parameters.h
+		Parameters.cpp
         )
 
