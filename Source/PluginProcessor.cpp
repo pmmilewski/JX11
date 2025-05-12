@@ -13,14 +13,15 @@
 //==============================================================================
 JX11AudioProcessor::JX11AudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
+    : AudioProcessor(BusesProperties()
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
+#endif
+          .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+#endif
+      ),
+      params(apvts)
 #endif
 {
 }
@@ -137,6 +138,10 @@ void JX11AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
 {
     juce::ScopedNoDenormals noDenormals;
 
+    float noiseMix = params.noiseParam->get() / 100.0f;
+    noiseMix *= noiseMix;
+    synth.noiseMix = noiseMix * 0.06;
+
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
@@ -160,7 +165,7 @@ bool JX11AudioProcessor::hasEditor() const
 juce::AudioProcessorEditor* JX11AudioProcessor::createEditor()
 {
     auto editor = new juce::GenericAudioProcessorEditor(*this);
-    editor->setSize(500, 1050);
+    editor->setSize(500, 800);
     return editor;
 }
 

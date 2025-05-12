@@ -1,5 +1,43 @@
 #include "Parameters.h"
 
+template<typename T>
+static void castParameter(juce::AudioProcessorValueTreeState& apvts,
+                          const juce::ParameterID& id, T& destination)
+{
+  destination = dynamic_cast<T>(apvts.getParameter(id.getParamID()));
+  jassert(destination);
+}
+
+Parameters::Parameters(juce::AudioProcessorValueTreeState& apvts)
+{
+  castParameter(apvts, ParameterID::oscMix, oscMixParam);
+  castParameter(apvts, ParameterID::oscTune, oscTuneParam);
+  castParameter(apvts, ParameterID::oscFine, oscFineParam);
+  castParameter(apvts, ParameterID::glideMode, glideModeParam);
+  castParameter(apvts, ParameterID::glideRate, glideRateParam);
+  castParameter(apvts, ParameterID::glideBend, glideBendParam);
+  castParameter(apvts, ParameterID::filterFreq, filterFreqParam);
+  castParameter(apvts, ParameterID::filterReso, filterResoParam);
+  castParameter(apvts, ParameterID::filterEnv, filterEnvParam);
+  castParameter(apvts, ParameterID::filterLFO, filterLFOParam);
+  castParameter(apvts, ParameterID::filterVelocity, filterVelocityParam);
+  castParameter(apvts, ParameterID::filterAttack, filterAttackParam);
+  castParameter(apvts, ParameterID::filterDecay, filterDecayParam);
+  castParameter(apvts, ParameterID::filterSustain, filterSustainParam);
+  castParameter(apvts, ParameterID::filterRelease, filterReleaseParam);
+  castParameter(apvts, ParameterID::envAttack, envAttackParam);
+  castParameter(apvts, ParameterID::envDecay, envDecayParam);
+  castParameter(apvts, ParameterID::envSustain, envSustainParam);
+  castParameter(apvts, ParameterID::envRelease, envReleaseParam);
+  castParameter(apvts, ParameterID::lfoRate, lfoRateParam);
+  castParameter(apvts, ParameterID::vibrato, vibratoParam);
+  castParameter(apvts, ParameterID::noise, noiseParam);
+  castParameter(apvts, ParameterID::octave, octaveParam);
+  castParameter(apvts, ParameterID::tuning, tuningParam);
+  castParameter(apvts, ParameterID::outputLevel, outputLevelParam);
+  castParameter(apvts, ParameterID::polyMode, polyModeParam);
+}
+
 juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterLayout()
 {
   juce::AudioProcessorValueTreeState::ParameterLayout layout{};

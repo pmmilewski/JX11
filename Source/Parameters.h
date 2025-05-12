@@ -36,9 +36,9 @@ namespace ParameterID
 class Parameters
 {
 public:
+    Parameters(juce::AudioProcessorValueTreeState& apvts);
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
-private:
     juce::AudioParameterFloat* oscMixParam;
     juce::AudioParameterFloat* oscTuneParam;
     juce::AudioParameterFloat* oscFineParam;
@@ -65,4 +65,6 @@ private:
     juce::AudioParameterFloat* tuningParam;
     juce::AudioParameterFloat* outputLevelParam;
     juce::AudioParameterChoice* polyModeParam;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Parameters)
 };
