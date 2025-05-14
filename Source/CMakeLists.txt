@@ -18,5 +18,6 @@ target_sources(${PROJECT_NAME}
 		Parameters.h
 		Parameters.cpp
 		Preset.h
+		Envelope.h
         )
 

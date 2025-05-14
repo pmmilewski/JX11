@@ -352,6 +352,12 @@ void JX11AudioProcessor::valueTreePropertyChanged(juce::ValueTree& treeWhoseProp
 
 void JX11AudioProcessor::update() noexcept
 {
+    float sampleRate = float(getSampleRate());
+
+    float decayTime = params.envDecayParam->get() / 100.0f * 5.0f;
+    float decaySamples = sampleRate * decayTime;
+    synth.envDecay = std::exp(std::log(SILENCE) / decaySamples);
+
     float noiseMix = params.noiseParam->get() / 100.0f;
     noiseMix *= noiseMix;
     synth.noiseMix = noiseMix * 0.06f;
