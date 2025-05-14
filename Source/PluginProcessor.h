@@ -11,11 +11,13 @@
 #include <JuceHeader.h>
 #include "Parameters.h"
 #include "Synth.h"
+#include "Preset.h"
 
 //==============================================================================
 /**
 */
-class JX11AudioProcessor  : public juce::AudioProcessor
+class JX11AudioProcessor : public juce::AudioProcessor,
+                           private juce::ValueTree::Listener
 {
 public:
     //==============================================================================
@@ -62,10 +64,16 @@ public:
 private:
     Parameters params;
     Synth synth;
+    std::atomic<bool> parametersChanged{ false };
+    std::vector<Preset> presets;
+    int currentProgram;
 
+    void createPrograms();
     void splitBufferByEvents(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages);
     void handleMIDI(uint8_t data0, uint8_t data1, uint8_t data2);
     void render(juce::AudioBuffer<float>& buffer, int sampleCount, int bufferOffset);
+    void valueTreePropertyChanged(juce::ValueTree& treeWhosePropertyHasChanged, const juce::Identifier& property) override;
+    void update() noexcept;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (JX11AudioProcessor)
 };

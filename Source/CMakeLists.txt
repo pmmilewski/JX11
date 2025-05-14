@@ -17,5 +17,6 @@ target_sources(${PROJECT_NAME}
 		Oscillator.h
 		Parameters.h
 		Parameters.cpp
+		Preset.h
         )
 
