@@ -352,15 +352,37 @@ void JX11AudioProcessor::valueTreePropertyChanged(juce::ValueTree& treeWhoseProp
 
 void JX11AudioProcessor::update() noexcept
 {
-    float sampleRate = float(getSampleRate());
+    auto sampleRate = static_cast<float>(getSampleRate());
+    auto inverseSampleRate = 1.0f / sampleRate;
 
-    float decayTime = params.envDecayParam->get() / 100.0f * 5.0f;
-    float decaySamples = sampleRate * decayTime;
-    synth.envDecay = std::exp(std::log(SILENCE) / decaySamples);
+    synth.envAttack = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * params.envAttackParam->get()));
+    synth.envDecay = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * params.envDecayParam->get()));
+    synth.envSustain = params.envSustainParam->get() / 100.0f;
+
+    float envRelease = params.envReleaseParam->get();
+    if (envRelease < 1.0f)
+    {
+        synth.envRelease = 0.75f; // extra fast release
+    }
+    else
+    {
+        synth.envRelease = std::exp(-inverseSampleRate * std::exp(5.5f - 0.075f * envRelease));
+    }
 
     float noiseMix = params.noiseParam->get() / 100.0f;
     noiseMix *= noiseMix;
     synth.noiseMix = noiseMix * 0.06f;
+
+    synth.oscMix = params.oscMixParam->get() / 100.0f;
+
+    float semi = params.oscTuneParam->get();
+    float cent = params.oscFineParam->get();
+    synth.detune = std::pow(1.059463094359f, -semi - 0.01f * cent);
+
+    float octave = params.octaveParam->get();
+    float tuning = params.tuningParam->get();
+    float tuneInSemi = -36.3763f - 12.0f * octave - tuning / 100.0f;
+    synth.tune = sampleRate * std::exp(0.05776226505f * tuneInSemi);
 }
 
 //==============================================================================
