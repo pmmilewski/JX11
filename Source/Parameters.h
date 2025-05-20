@@ -64,7 +64,7 @@ public:
     juce::AudioParameterFloat* octaveParam;
     juce::AudioParameterFloat* tuningParam;
     juce::AudioParameterFloat* outputLevelParam;
-    juce::AudioParameterChoice* polyModeParam;
+    juce::AudioParameterFloat* polyModeParam;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Parameters)
 };

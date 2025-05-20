@@ -1,4 +1,5 @@
 #include "Parameters.h"
+#include "Synth.h"
 
 template<typename T>
 static void castParameter(juce::AudioProcessorValueTreeState& apvts,
@@ -42,10 +43,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
 {
   juce::AudioProcessorValueTreeState::ParameterLayout layout{};
 
-  layout.add(std::make_unique<juce::AudioParameterChoice>(
+  layout.add(std::make_unique<juce::AudioParameterFloat>(
     ParameterID::polyMode,
     "Polyphony",
-    juce::StringArray{"Mono", "Poly"},
+    juce::NormalisableRange<float>(1.0f, static_cast<float>(Synth::MAX_VOICES), 1.0f),
     1));
 
   layout.add(std::make_unique<juce::AudioParameterFloat>(

@@ -1,6 +1,8 @@
 #include "Synth.h"
 #include "ProtectYourEars.h"
 
+static constexpr float ANALOG = 0.002f;
+
 Synth::Synth()
 {
     sampleRate = 44100.0f;
@@ -31,7 +33,7 @@ void Synth::render(float** outputBuffers, int sampleCount)
     float* outputBufferLeft = outputBuffers[0];
     float* outputBufferRight = outputBuffers[1];
 
-    for (int v = 0; v < MAX_VOICES; ++v)
+    for (int v = 0; v < numVoices; ++v)
     {
         if (Voice& voice = voices[v]; voice.env.isActive())
         {
@@ -47,7 +49,7 @@ void Synth::render(float** outputBuffers, int sampleCount)
         float outputLeft = 0.0f;
         float outputRight = 0.0f;
 
-        for (int v = 0; v < MAX_VOICES; ++v)
+        for (int v = 0; v < numVoices; ++v)
         {
             if (Voice& voice = voices[v]; voice.env.isActive())
             {
@@ -68,7 +70,7 @@ void Synth::render(float** outputBuffers, int sampleCount)
         }
     }
 
-    for (int v = 0; v < MAX_VOICES; ++v)
+    for (int v = 0; v < numVoices; ++v)
     {
         if (Voice& voice = voices[v]; !voice.env.isActive())
         {
@@ -108,9 +110,18 @@ void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2)
     }
 }
 
-float Synth::calcPeriod(int note) const
+void Synth::releaseVoices()
 {
-    float period = tune * std::exp(-0.05776226505f * static_cast<float>(note));
+    for (int v = 0; v < numVoices; ++v)
+    {
+        voices[v].reset();
+        voices[v].note = -1;
+    }
+}
+
+float Synth::calcPeriod(int v, int note) const
+{
+    float period = tune * std::exp(-0.05776226505f * (static_cast<float>(note) + ANALOG * static_cast<float>(v)));
     while (period < 6.0f || (period * detune) < 6.0f) { period += period; } // BLIT osc may now work properly with such small period
     return period;
 }
@@ -119,7 +130,7 @@ void Synth::startVoice(int v, int note, int velocity)
 {
     // earlier simple formula was used
     // float freq = 440.0f * std::exp2((float(note - 69) + tune) / 12.0f);
-    float period = calcPeriod(note);
+    float period = calcPeriod(v, note);
 
     Voice& voice = voices[v];
     voice.period = period;
@@ -140,15 +151,41 @@ void Synth::startVoice(int v, int note, int velocity)
 
 void Synth::noteOn(int note, int velocity)
 {
-    startVoice(0, note, velocity);
+    int v = 0; // mono
+
+    if (numVoices > 1) // poly
+    {
+        v = findFreeVoice();
+    }
+
+    startVoice(v, note, velocity);
 }
 
 void Synth::noteOff(int note)
 {
-    Voice& voice = voices[0];
-
-    if (voice.note == note)
+    for (int v = 0; v < numVoices; ++v)
     {
-        voice.release();
+        if (voices[v].note == note)
+        {
+            voices[v].release();
+            voices[v].note = -1;
+        }
     }
+}
+
+int Synth::findFreeVoice() const
+{
+    int v = 0;
+    float l = 100.0f; // louder than anything
+
+    for (int i = 0; i < numVoices; ++i)
+    {
+        if (voices[i].env.level < l && !voices[i].env.isActive())
+        {
+            l = voices[i].env.level;
+            v = i;
+        }
+    }
+
+    return v;
 }

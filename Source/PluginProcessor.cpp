@@ -384,7 +384,12 @@ void JX11AudioProcessor::update() noexcept
     float tuneInSemi = -36.3763f - 12.0f * octave - tuning / 100.0f;
     synth.tune = sampleRate * std::exp(0.05776226505f * tuneInSemi);
 
-    synth.numVoices = (params.polyModeParam->getIndex() == 0) ? 1 : Synth::MAX_VOICES;
+    synth.prevNumVoices = synth.numVoices;
+    synth.numVoices = static_cast<int>(params.polyModeParam->get());
+    if (synth.numVoices != synth.prevNumVoices)
+    {
+        synth.releaseVoices();
+    }
 }
 
 //==============================================================================

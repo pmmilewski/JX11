@@ -14,6 +14,7 @@ public:
     void reset();
     void render(float** outputBuffers, int sampleCount);
     void midiMessage(uint8_t data0, uint8_t data1, uint8_t data2);
+    void releaseVoices();
 
     float noiseMix;
     float oscMix;
@@ -27,6 +28,7 @@ public:
 
     static constexpr int MAX_VOICES = 8;
     int numVoices;
+    int prevNumVoices;
 
 private:
     float sampleRate;
@@ -34,8 +36,9 @@ private:
     std::array<Voice, MAX_VOICES> voices;
     NoiseGenerator noiseGenerator;
 
-    float calcPeriod(int note) const;
+    float calcPeriod(int v, int note) const;
     void startVoice(int v, int note, int velocity);
     void noteOn(int note, int velocity);
     void noteOff(int note);
+    int findFreeVoice() const;
 };
