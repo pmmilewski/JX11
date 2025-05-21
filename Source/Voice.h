@@ -17,7 +17,7 @@ struct Voice
     {
         osc1.reset();
         osc2.reset();
-        note = -1;
+        note = 0;
         saw = 0.0f;
         env.reset();
         panLeft = panRight = 0.707f;

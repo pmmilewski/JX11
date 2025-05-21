@@ -14,12 +14,15 @@ public:
     void reset();
     void render(float** outputBuffers, int sampleCount);
     void midiMessage(uint8_t data0, uint8_t data1, uint8_t data2);
+    void controlChange(uint8_t data1, uint8_t data2);
     void releaseVoices();
 
     float noiseMix;
     float oscMix;
     float detune;
     float tune;
+    float volumeTrim;
+    float outputLevel;
 
     float envAttack;
     float envDecay;
@@ -33,6 +36,7 @@ public:
 private:
     float sampleRate;
     float pitchBend;
+    bool sustainPedalPressed;
     std::array<Voice, MAX_VOICES> voices;
     NoiseGenerator noiseGenerator;
 

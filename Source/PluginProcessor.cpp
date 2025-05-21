@@ -390,6 +390,9 @@ void JX11AudioProcessor::update() noexcept
     {
         synth.releaseVoices();
     }
+
+    synth.volumeTrim = 0.0008f * (3.2f - synth.oscMix - 25.0f * synth.noiseMix) * 1.5f;
+    synth.outputLevel = juce::Decibels::decibelsToGain(params.outputLevelParam->get());
 }
 
 //==============================================================================
