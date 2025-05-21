@@ -180,7 +180,7 @@ void JX11AudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::M
 
     float noiseMix = params.noiseParam->get() / 100.0f;
     noiseMix *= noiseMix;
-    synth.noiseMix = noiseMix * 0.06;
+    synth.noiseMix = noiseMix * 0.06f;
 
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -394,6 +394,28 @@ void JX11AudioProcessor::update() noexcept
 
     synth.volumeTrim = 0.0008f * (3.2f - synth.oscMix - 25.0f * synth.noiseMix) * 1.5f;
     synth.outputLevelSmoother.setTargetValue(juce::Decibels::decibelsToGain(params.outputLevelParam->get()));
+
+    float filterVelocity = params.filterVelocityParam->get();
+    if (filterVelocity < -90.0f)
+    {
+        synth.velocitySensitivity = 0.0f;
+        synth.ignoreVelocity = true;
+    }
+    else
+    {
+        synth.velocitySensitivity = 0.0005f * filterVelocity;
+        synth.ignoreVelocity = false;
+    }
+
+    const float inverseUpdateRate = inverseSampleRate * synth.LFO_MAX;
+    float lfoRate = std::exp(7.0f * params.lfoRateParam->get() - 4.0f);
+    synth.lfoInc = lfoRate * inverseUpdateRate * static_cast<float>(TWO_PI);
+
+    float vibrato = params.vibratoParam->get() / 200.0f;
+    synth.vibrato = 0.2f * vibrato * vibrato;
+
+    synth.pwmDepth = synth.vibrato;
+    if (vibrato < 0.0f) { synth.vibrato = 0.0f;}
 }
 
 //==============================================================================

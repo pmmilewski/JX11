@@ -11,6 +11,7 @@ class Oscillator
 public:
     float period = 0.0f;
     float amplitude = 1.0f;
+    float modulation = 1.0f;
 
     void reset()
     {
@@ -31,7 +32,7 @@ public:
 
         if (phase <= PI_OVER_4)
         {
-            float halfPeriod = period / 2.0f;
+            float halfPeriod = (period / 2.0f) * modulation;
             phaseMax = std::floor(0.5f + halfPeriod) - 0.5f;
             dc = 0.5f * amplitude / phaseMax;
             phaseMax *= PI;
@@ -68,6 +69,30 @@ public:
         }
 
         return output - dc;
+    }
+
+    void squareWave(Oscillator& other, float newPeriod)
+    {
+        reset();
+
+        if (other.inc > 0.0f)
+        {
+            phase = other.phaseMax + other.phaseMax - other.phase;
+            inc = -other.inc;
+        }
+        else if (other.inc < 0.0f)
+        {
+            phase = other.phase;
+            inc = other.inc;
+        }
+        else
+        {
+            phase = -PI;
+            inc = PI;
+        }
+
+        phase += PI * newPeriod / 2.0f;
+        phaseMax = phase;
     }
 
 private:
