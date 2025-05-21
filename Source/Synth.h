@@ -22,7 +22,7 @@ public:
     float detune;
     float tune;
     float volumeTrim;
-    float outputLevel;
+    juce::LinearSmoothedValue<float> outputLevelSmoother;
 
     float envAttack;
     float envDecay;
@@ -42,7 +42,10 @@ private:
 
     float calcPeriod(int v, int note) const;
     void startVoice(int v, int note, int velocity);
+    void restartMonoVoice(int note, int velocity);
     void noteOn(int note, int velocity);
     void noteOff(int note);
     int findFreeVoice() const;
+    void shiftQueuedNotes();
+    int nextQueuedNote();
 };
