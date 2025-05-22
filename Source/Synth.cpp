@@ -3,6 +3,8 @@
 
 static constexpr float ANALOG = 0.002f;
 static constexpr int SUSTAIN = -1;
+static constexpr float TWO_OVER_PI = 0.6366197723675813f;
+static constexpr float PI_OVER_TWO = 1.5707963267948966f;
 
 Synth::Synth()
 {
@@ -326,10 +328,71 @@ void Synth::updateLFO()
         lfo += lfoInc;
         if (lfo > PI) { lfo -= TWO_PI; }
 
-        const float sine = std::sin(lfo);
+        float vibratoMod = 0.0f, pwm = 0.0f;
 
-        float vibratoMod = 1.0f + sine * vibrato;
-        float pwm = 1.0f + sine * pwmDepth;
+        if (lfoWave == 0 || vibrato <= 0)
+        {
+            const float sine = std::sin(lfo);
+            vibratoMod = 1.0f + sine * vibrato;
+            pwm = 1.0f + sine * pwmDepth;
+        }
+        else if (lfoWave == 1)
+        {
+            float triangle = 0.0f;
+            if (std::abs(lfo) < PI_OVER_TWO)
+            {
+                triangle = lfo * TWO_OVER_PI;
+            }
+            else
+            {
+                if (lfo > 0.0f)
+                {
+                    triangle = -lfo * TWO_OVER_PI + 2.0f;
+                }
+                else
+                {
+                    triangle = -lfo * TWO_OVER_PI - 2.0f;
+                }
+            }
+
+            vibratoMod = 1.0f + triangle * vibrato;
+            pwm = 1.0f + triangle * pwmDepth;
+        }
+        else if (lfoWave == 2)
+        {
+            float saw = 0.0f;
+            if (std::abs(lfo) < PI_OVER_TWO)
+            {
+                saw = lfo * TWO_OVER_PI;
+            }
+            else
+            {
+                if (lfo > 0.0f)
+                {
+                    saw = lfo * TWO_OVER_PI - 2.0f;
+                }
+                else
+                {
+                    saw = lfo * TWO_OVER_PI + 2.0f;
+                }
+            }
+
+            vibratoMod = 1.0f + saw * vibrato;
+            pwm = 1.0f + saw * pwmDepth;
+        }
+        else if (lfoWave == 3)
+        {
+            if (lfo >= 0.0f)
+            {
+                vibratoMod = 1.0f + vibrato;
+                pwm = 1.0f + pwmDepth;
+            }
+            else
+            {
+                vibratoMod = 1.0f - vibrato;
+                pwm = 1.0f - pwmDepth;
+            }
+        }
 
         for (int v = 0; v < numVoices; ++v)
         {

@@ -416,6 +416,8 @@ void JX11AudioProcessor::update() noexcept
 
     synth.pwmDepth = synth.vibrato;
     if (vibrato < 0.0f) { synth.vibrato = 0.0f;}
+
+    synth.lfoWave = params.lfoWaveformParam->getIndex();
 }
 
 //==============================================================================

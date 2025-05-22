@@ -24,6 +24,7 @@ namespace ParameterID
     PARAMETER_ID(envSustain)
     PARAMETER_ID(envRelease)
     PARAMETER_ID(lfoRate)
+    PARAMETER_ID(lfoWaveform)
     PARAMETER_ID(vibrato)
     PARAMETER_ID(noise)
     PARAMETER_ID(octave)
@@ -58,6 +59,7 @@ public:
     juce::AudioParameterFloat* envDecayParam;
     juce::AudioParameterFloat* envSustainParam;
     juce::AudioParameterFloat* envReleaseParam;
+    juce::AudioParameterChoice* lfoWaveformParam;
     juce::AudioParameterFloat* lfoRateParam;
     juce::AudioParameterFloat* vibratoParam;
     juce::AudioParameterFloat* noiseParam;

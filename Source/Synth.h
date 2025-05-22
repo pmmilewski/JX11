@@ -36,6 +36,7 @@ public:
     float lfoInc;
     float vibrato;
     float pwmDepth;
+    int lfoWave;
 
     static constexpr int MAX_VOICES = 8;
     int numVoices;

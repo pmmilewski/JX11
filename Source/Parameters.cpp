@@ -31,6 +31,7 @@ Parameters::Parameters(juce::AudioProcessorValueTreeState& apvts)
   castParameter(apvts, ParameterID::envSustain, envSustainParam);
   castParameter(apvts, ParameterID::envRelease, envReleaseParam);
   castParameter(apvts, ParameterID::lfoRate, lfoRateParam);
+  castParameter(apvts, ParameterID::lfoWaveform, lfoWaveformParam);
   castParameter(apvts, ParameterID::vibrato, vibratoParam);
   castParameter(apvts, ParameterID::noise, noiseParam);
   castParameter(apvts, ParameterID::octave, octaveParam);
@@ -214,6 +215,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout Parameters::createParameterL
     juce::AudioParameterFloatAttributes()
     .withLabel("Hz")
     .withStringFromValueFunction(lfoRateStringFromValue)));
+
+  juce::StringArray waveforms = {
+    "Sine",
+    "Triangle",
+    "Saw",
+    "Square"
+  };
+
+  layout.add(std::make_unique<juce::AudioParameterChoice>(ParameterID::lfoWaveform, "LFO Wave", waveforms, 0));
 
   auto vibratoStringFromValue = [](float value, int)
   {
