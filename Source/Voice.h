@@ -11,6 +11,10 @@ struct Voice
     float saw;
     Envelope env;
     float period;
+    float target;
+    float glideRate;
+    float panning;
+    float targetPanning;
     float panLeft, panRight;
 
     void reset()
@@ -21,6 +25,7 @@ struct Voice
         saw = 0.0f;
         env.reset();
         panLeft = panRight = 0.707f;
+        panning = targetPanning = 0.0f;
     }
 
     void release()
@@ -30,7 +35,7 @@ struct Voice
 
     void updatePanning()
     {
-        float panning = std::clamp((note - 60.0f) / 24.0f, -1.0f, 1.0f);
+        panning += glideRate * (targetPanning - panning);
         panLeft = std::sin(PI_OVER_4 * (1.0f - panning));
         panRight = std::sin(PI_OVER_4 * (1.0f + panning));
     }
@@ -44,6 +49,12 @@ struct Voice
         float output = saw + input;
         float envelope = env.nextValue();
         return output * envelope;
+    }
+
+    void updateLFO()
+    {
+        period += glideRate * (target - period);
+        updatePanning();
     }
 
 };

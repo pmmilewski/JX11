@@ -38,6 +38,10 @@ public:
     float pwmDepth;
     int lfoWave;
 
+    int glideMode;
+    float glideRate;
+    float glideBend;
+
     static constexpr int MAX_VOICES = 8;
     int numVoices;
     int prevNumVoices;
@@ -50,6 +54,8 @@ private:
     NoiseGenerator noiseGenerator;
     int lfoStep;
     float lfo;
+    float modWheel;
+    int lastNote;
 
     float calcPeriod(int v, int note) const;
     void startVoice(int v, int note, int velocity);
@@ -60,4 +66,12 @@ private:
     void shiftQueuedNotes();
     int nextQueuedNote();
     void updateLFO();
+
+    void updatePeriod(Voice& voice) const
+    {
+        voice.osc1.period = voice.period * pitchBend;
+        voice.osc2.period = voice.osc1.period * detune;
+    }
+
+    bool isPlyingLegatoStyle() const;
 };
