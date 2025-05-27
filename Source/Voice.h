@@ -1,11 +1,13 @@
 #pragma once
 #include "Oscillator.h"
 #include "Envelope.h"
+#include "Filter.h"
 
 struct Voice
 {
     Oscillator osc1;
     Oscillator osc2;
+    Filter filter;
 
     int note;
     float saw;
@@ -26,6 +28,7 @@ struct Voice
         env.reset();
         panLeft = panRight = 0.707f;
         panning = targetPanning = 0.0f;
+        filter.reset();
     }
 
     void release()
@@ -47,6 +50,9 @@ struct Voice
         saw = saw * 0.997f + sample1 - sample2;
 
         float output = saw + input;
+
+        output = filter.render(output);
+
         float envelope = env.nextValue();
         return output * envelope;
     }
@@ -55,6 +61,7 @@ struct Voice
     {
         period += glideRate * (target - period);
         updatePanning();
+        filter.updateCoefficients(1000.0f, 0.707f);
     }
 
 };
