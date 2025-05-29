@@ -1,6 +1,8 @@
 #include "Parameters.h"
 #include "Synth.h"
 
+// Skipped "Changing a parameter using MIDI CC" for later
+
 template<typename T>
 static void castParameter(juce::AudioProcessorValueTreeState& apvts,
                           const juce::ParameterID& id, T& destination)

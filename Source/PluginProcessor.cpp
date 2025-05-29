@@ -392,7 +392,6 @@ void JX11AudioProcessor::update() noexcept
         synth.releaseVoices();
     }
 
-    synth.volumeTrim = 0.0008f * (3.2f - synth.oscMix - 25.0f * synth.noiseMix) * 1.5f;
     synth.outputLevelSmoother.setTargetValue(juce::Decibels::decibelsToGain(params.outputLevelParam->get()));
 
     float filterVelocity = params.filterVelocityParam->get();
@@ -431,6 +430,12 @@ void JX11AudioProcessor::update() noexcept
     if (vibrato < 0.0f) { synth.vibrato = 0.0f;}
 
     synth.lfoWave = params.lfoWaveformParam->getIndex();
+    synth.filterKeyTracking = 0.08f * params.filterFreqParam->get() - 1.5f;
+
+    float filterReso = params.filterResoParam->get() / 100.0f;
+    synth.filterQ = std::exp(3.0f * filterReso);
+
+    synth.volumeTrim = 0.0008f * (3.2f - synth.oscMix - 25.0f * synth.noiseMix) * (1.5f - 0.5f * filterReso);
 }
 
 //==============================================================================

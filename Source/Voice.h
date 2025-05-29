@@ -7,7 +7,6 @@ struct Voice
 {
     Oscillator osc1;
     Oscillator osc2;
-    Filter filter;
 
     int note;
     float saw;
@@ -18,6 +17,11 @@ struct Voice
     float panning;
     float targetPanning;
     float panLeft, panRight;
+
+    Filter filter;
+    float cutoff;
+    float filterMod;
+    float filterQ;
 
     void reset()
     {
@@ -61,7 +65,10 @@ struct Voice
     {
         period += glideRate * (target - period);
         updatePanning();
-        filter.updateCoefficients(1000.0f, 0.707f);
+
+        float modulatedCutoff = cutoff * std::exp(filterMod);
+        modulatedCutoff = std::clamp(modulatedCutoff, 30.0f, 20000.0f);
+        filter.updateCoefficients(modulatedCutoff, filterQ);
     }
 
 };

@@ -53,6 +53,7 @@ void Synth::render(float** outputBuffers, int sampleCount)
         {
             updatePeriod(voice);
             voice.glideRate = glideRate;
+            voice.filterQ = filterQ * resonanceCtl;
         }
     }
 
@@ -157,6 +158,11 @@ void Synth::controlChange(uint8_t data1, uint8_t data2)
             modWheel = 0.000005f * static_cast<float>(data2 * data2);
             break;
         }
+    case 0x47:
+        {
+            resonanceCtl = 154.0f / static_cast<float>(154 - data2);
+            break;
+        }
     default:
         {
             if (data1 >= 0x78)
@@ -229,6 +235,9 @@ void Synth::startVoice(int v, int note, int velocity)
     env.sustainLevel = envSustain;
     env.releaseMultiplier = envRelease;
     env.attack();
+
+    voice.cutoff = sampleRate / (period * PI);
+    voice.cutoff *= std::exp(velocitySensitivity * static_cast<float>(velocity - 64));
 }
 
 void Synth::restartMonoVoice(int note, int velocity)
@@ -429,6 +438,8 @@ void Synth::updateLFO()
             }
         }
 
+        float filterMod = filterKeyTracking;
+
         for (int v = 0; v < numVoices; ++v)
         {
             Voice& voice = voices[v];
@@ -436,7 +447,7 @@ void Synth::updateLFO()
             {
                 voice.osc1.modulation = vibratoMod;
                 voice.osc2.modulation = pwm;
-
+                voice.filterMod = filterMod;
                 voice.updateLFO();
                 updatePeriod(voice);
             }

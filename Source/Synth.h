@@ -45,6 +45,10 @@ public:
     static constexpr int MAX_VOICES = 8;
     int numVoices;
     int prevNumVoices;
+    float filterKeyTracking;
+    float filterQ;
+    float resonanceCtl;
+
 
 private:
     float sampleRate;
