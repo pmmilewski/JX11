@@ -48,6 +48,7 @@ public:
     float filterKeyTracking;
     float filterQ;
     float resonanceCtl;
+    float filterLFODepth;
 
 
 private:

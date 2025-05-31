@@ -5,6 +5,7 @@ static constexpr float ANALOG = 0.002f;
 static constexpr int SUSTAIN = -1;
 static constexpr float TWO_OVER_PI = 0.6366197723675813f;
 static constexpr float PI_OVER_TWO = 1.5707963267948966f;
+static constexpr float ONE_OVER_PI = 0.3183098861837906f;
 
 Synth::Synth()
 {
@@ -40,6 +41,7 @@ void Synth::reset()
     lfoStep = 0;
     modWheel = 0.0f;
     lastNote = 0;
+    resonanceCtl = 1.0f;
 }
 
 void Synth::render(float** outputBuffers, int sampleCount)
@@ -372,11 +374,12 @@ void Synth::updateLFO()
         lfo += lfoInc;
         if (lfo > PI) { lfo -= TWO_PI; }
 
-        float vibratoMod = 0.0f, pwm = 0.0f;
+        float vibratoMod = 0.0f, pwm = 0.0f, wave = 0.0f;
 
         if (lfoWave == 0 || vibrato <= 0)
         {
             const float sine = std::sin(lfo);
+            wave = sine;
             vibratoMod = 1.0f + sine * (modWheel + vibrato);
             pwm = 1.0f + sine * (modWheel + pwmDepth);
         }
@@ -399,28 +402,15 @@ void Synth::updateLFO()
                 }
             }
 
+            wave = triangle;
             vibratoMod = 1.0f + triangle * (modWheel + vibrato);
             pwm = 1.0f + triangle * (modWheel + pwmDepth);
         }
         else if (lfoWave == 2)
         {
-            float saw = 0.0f;
-            if (std::abs(lfo) < PI_OVER_TWO)
-            {
-                saw = lfo * TWO_OVER_PI;
-            }
-            else
-            {
-                if (lfo > 0.0f)
-                {
-                    saw = lfo * TWO_OVER_PI - 2.0f;
-                }
-                else
-                {
-                    saw = lfo * TWO_OVER_PI + 2.0f;
-                }
-            }
+            float saw = lfo * ONE_OVER_PI;
 
+            wave = saw;
             vibratoMod = 1.0f + saw * (modWheel + vibrato);
             pwm = 1.0f + saw * (modWheel + pwmDepth);
         }
@@ -428,17 +418,19 @@ void Synth::updateLFO()
         {
             if (lfo >= 0.0f)
             {
+                wave = 1.0f;
                 vibratoMod = 1.0f + (modWheel + vibrato);
                 pwm = 1.0f + (modWheel + pwmDepth);
             }
             else
             {
+                wave = -1.0f;
                 vibratoMod = 1.0f - (modWheel + vibrato);
                 pwm = 1.0f - (modWheel + pwmDepth);
             }
         }
 
-        float filterMod = filterKeyTracking;
+        float filterMod = filterKeyTracking + filterLFODepth * wave;
 
         for (int v = 0; v < numVoices; ++v)
         {
