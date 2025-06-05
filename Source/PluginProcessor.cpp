@@ -439,6 +439,19 @@ void JX11AudioProcessor::update() noexcept
 
     float filterLFO = params.filterLFOParam->get() / 100.0f;
     synth.filterLFODepth = 2.5f * filterLFO * filterLFO;
+
+    synth.filterAttack = std::exp(-inverseUpdateRate *
+        std::exp(5.5f - 0.075f * params.filterAttackParam->get()));
+    synth.filterDecay = std::exp(-inverseUpdateRate *
+        std::exp(5.5f - 0.075f * params.filterDecayParam->get()));
+
+    float filterSustain = params.filterSustainParam->get() / 100.0f;
+
+    synth.filterSustain = filterSustain * filterSustain;
+    synth.filterRelease = std::exp(-inverseUpdateRate *
+        std::exp(5.5f - 0.075f * params.filterReleaseParam->get()));
+
+    synth.filterEnvDepth = 0.06f * params.filterEnvParam->get();
 }
 
 //==============================================================================

@@ -49,6 +49,10 @@ public:
     float filterQ;
     float resonanceCtl;
     float filterLFODepth;
+    float pressure;
+    float filterCtl;
+    float filterAttack, filterDecay, filterSustain, filterRelease;
+    float filterEnvDepth;
 
 
 private:
@@ -61,6 +65,7 @@ private:
     float lfo;
     float modWheel;
     int lastNote;
+    float filterZip;
 
     float calcPeriod(int v, int note) const;
     void startVoice(int v, int note, int velocity);

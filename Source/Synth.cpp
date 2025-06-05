@@ -42,6 +42,9 @@ void Synth::reset()
     modWheel = 0.0f;
     lastNote = 0;
     resonanceCtl = 1.0f;
+    pressure = 0.0f;
+    filterCtl = 0.0f;
+    filterZip = 0.0f;
 }
 
 void Synth::render(float** outputBuffers, int sampleCount)
@@ -56,6 +59,8 @@ void Synth::render(float** outputBuffers, int sampleCount)
             updatePeriod(voice);
             voice.glideRate = glideRate;
             voice.filterQ = filterQ * resonanceCtl;
+            // skipped pitchBend somewhere?
+            voice.filterEnvDepth = filterEnvDepth;
         }
     }
 
@@ -136,6 +141,11 @@ void Synth::midiMessage(uint8_t data0, uint8_t data1, uint8_t data2)
             controlChange(data1, data2);
             break;
         }
+    case 0xD0:
+        {
+            pressure = 0.0001f * static_cast<float>(data1 * data1);
+            break;
+        }
     }
 }
 
@@ -143,7 +153,7 @@ void Synth::controlChange(uint8_t data1, uint8_t data2)
 {
     switch (data1)
     {
-        // sustain pedal
+    // sustain pedal
     case 0x40:
         {
             sustainPedalPressed = (data2 >= 64);
@@ -163,6 +173,18 @@ void Synth::controlChange(uint8_t data1, uint8_t data2)
     case 0x47:
         {
             resonanceCtl = 154.0f / static_cast<float>(154 - data2);
+            break;
+        }
+        // Filter +
+    case 0x4A:
+        {
+            filterCtl = 0.02f * static_cast<float>(data2);
+            break;
+        }
+        // Filter -
+    case 0x4B:
+        {
+            filterCtl = -0.03f * static_cast<float>(data2);
             break;
         }
     default:
@@ -240,6 +262,13 @@ void Synth::startVoice(int v, int note, int velocity)
 
     voice.cutoff = sampleRate / (period * PI);
     voice.cutoff *= std::exp(velocitySensitivity * static_cast<float>(velocity - 64));
+
+    Envelope& filterEnv = voice.filterEnv;
+    filterEnv.attackMultiplier = filterAttack;
+    filterEnv.decayMultiplier = filterDecay;
+    filterEnv.sustainLevel = filterSustain;
+    filterEnv.releaseMultiplier = filterRelease;
+    filterEnv.attack();
 }
 
 void Synth::restartMonoVoice(int note, int velocity)
@@ -430,7 +459,8 @@ void Synth::updateLFO()
             }
         }
 
-        float filterMod = filterKeyTracking + filterLFODepth * wave;
+        float filterMod = filterKeyTracking + filterCtl + (filterLFODepth + pressure) * wave;
+        filterZip += 0.005f * (filterMod - filterZip);
 
         for (int v = 0; v < numVoices; ++v)
         {
@@ -439,7 +469,7 @@ void Synth::updateLFO()
             {
                 voice.osc1.modulation = vibratoMod;
                 voice.osc2.modulation = pwm;
-                voice.filterMod = filterMod;
+                voice.filterMod = filterZip;
                 voice.updateLFO();
                 updatePeriod(voice);
             }
